@@ -2,13 +2,16 @@
 image:
   repository: itzg/minecraft-server
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   pullSecret: ""
 
 # ### WARNING ###
 # Minecraft is not horizontally scalable, adjusting this will most likely break your setup.
 # ### WARNING ###
 replicaCount: 1
+
+nameOverride: ""
+fullnameOverride: ""
 
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
@@ -171,15 +174,17 @@ minecraftServer:
   eula: "FALSE"
   # One of: LATEST, SNAPSHOT, or a specific version (ie: "1.7.9").
   version: "LATEST"
-  # This can be one of "VANILLA", "FORGE", "SPIGOT", "BUKKIT", "PAPER", "FTBA", "SPONGEVANILLA", "AUTO_CURSEFORGE"
-  # https://docker-minecraft-server.readthedocs.io/en/latest/types-and-platforms
+  ## The type of Minecraft server to run, check for related settings below
+  ## Common types: "VANILLA", "FABRIC", "FORGE", "SPIGOT", "BUKKIT", "PAPER",
+  ## "FTBA", "SPONGEVANILLA", "AUTO_CURSEFORGE"
+  ## ref: https://docker-minecraft-server.readthedocs.io/en/latest/types-and-platforms
   type: "VANILLA"
   # If type is set to FORGE, this sets the version; this is ignored if forgeInstallerUrl is set
   forgeVersion:
-  # If type is set to SPONGEVANILLA, this sets the version
-  spongeVersion:
   # If type is set to FORGE, this sets the URL to download the Forge installer
   forgeInstallerUrl:
+  # If type is set to SPONGEVANILLA, this sets the version
+  spongeVersion:
   # If type is set to BUKKIT, this sets the URL to download the Bukkit package
   bukkitDownloadUrl:
   # If type is set to SPIGOT, this sets the URL to download the Spigot package
@@ -192,6 +197,14 @@ minecraftServer:
   ftbModpackVersionId:
   # If type is set to CURSEFORGE, this sets the server mod to run. Can also provide url to curseforge package.
   cfServerMod:
+  ## If type is set to FABRIC, this sets the version of fabric server launcher
+  ## to use. Defaults to latest available for minecraftServer.version.
+  ##
+  ## For a custom launcher, see: https://docker-minecraft-server.readthedocs.io/en/latest/types-and-platforms/server-types/fabric/
+  fabricLauncherVersion:
+  ## If type is set to FABRIC, this sets the version of fabric-loader to use.
+  ## Defaults to latest available for minecraftServer.version.
+  fabricLoaderVersion:
   # Set to true if running Feed The Beast and get an error like "unable to launch forgemodloader"
   ftbLegacyJavaFixer: default
   # One of: peaceful, easy, normal, and hard
@@ -203,9 +216,9 @@ minecraftServer:
   # A server icon URL for server listings. Auto-scaled and transcoded.
   icon:
   # Max connected players.
-  maxPlayers: 20
+  maxPlayers: default
   # This sets the maximum possible size in blocks, expressed as a radius, that the world border can obtain.
-  maxWorldSize: 10000
+  maxWorldSize: default
   # Allows players to travel to the Nether.
   allowNether: default
   # Allows server to announce when a player gets an achievement.
@@ -219,9 +232,9 @@ minecraftServer:
   # If set to true, players will be set to spectator mode if they die.
   hardcore: default
   # The maximum height in which building is allowed.
-  maxBuildHeight: 256
+  maxBuildHeight: default
   # The maximum number of milliseconds a single tick may take before the server watchdog stops the server with the message. -1 disables this entirely.
-  maxTickTime: 60000
+  maxTickTime: default
   # Determines if animals will be able to spawn.
   spawnAnimals: default
   # Determines if monsters will be spawned.
@@ -229,9 +242,9 @@ minecraftServer:
   # Determines if villagers will be spawned.
   spawnNPCs: default
   # Sets the area that non-ops can not edit (0 to disable)
-  spawnProtection: 16
+  spawnProtection: default
   # Max view distance (in chunks).
-  viewDistance: 10
+  viewDistance: default
   # Define this if you want a specific map generation seed.
   levelSeed:
   # One of: creative, survival, adventure, spectator
@@ -273,10 +286,7 @@ minecraftServer:
   jvmOpts: ""
   # Options like -X that need to proceed general JVM options
   jvmXXOpts: ""
-  # By default, the server configuration will be created and set based on the following environment variables, but only the first time the server is started
-  # If you would like to override the server configuration each time the container starts up, you can set this to true
-  # see https://github.com/itzg/docker-minecraft-server#server-configuration
-  overrideServerProperties: false
+  overrideServerProperties: default
   # DEPRECATED: use top-level rconServiceAnnotations instead
   serviceAnnotations: {}
   serviceType: ClusterIP
@@ -306,10 +316,10 @@ minecraftServer:
   # A list of Modrinth project slugs with optional version after colon
   modrinth:
     projects: []
-    # Downloads Modrinth project dependencies marked as optional
-    optionalDependencies: false
+    # Specifies whether to download Modrinth dependencies. The allowed values are: none, required, optional
+    downloadDependencies: none
     # The version type is used to determine the newest version to use from each project. The allowed values are: release, beta, alpha
-    allowedVersionType: release
+    allowedVersionType: default
 
   # Config for AUTO_CURSEFORGE server type
   autoCurseForge:
@@ -364,6 +374,9 @@ minecraftServer:
     # loadBalancerSourceRanges: []
     ## Set the externalTrafficPolicy in the Service to either Cluster or Local
     # externalTrafficPolicy: Cluster
+
+  ## set this to false to not have colorized logs
+  tty: true
 
   extraPorts:
     []
